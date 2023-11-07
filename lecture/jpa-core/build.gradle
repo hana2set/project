@@ -1,0 +1,27 @@
+plugins {
+    id 'groovy'
+    id 'java'
+}
+
+group 'org.sparta'
+version '1.0-SNAPSHOT'
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    // JPA 구현체인 hibernate
+    implementation 'org.hibernate:hibernate-core:6.1.7.Final'
+    // mariaDB
+    implementation group: 'org.mariadb.jdbc', name: 'mariadb-java-client', version: '3.2.0'
+
+
+    implementation 'org.codehaus.groovy:groovy-all:3.0.5'
+    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.8.1'
+    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.8.1'
+}
+
+test {
+    useJUnitPlatform()
+}
