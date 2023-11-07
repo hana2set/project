@@ -4,29 +4,19 @@ import com.study.memo.dto.MemoRequestDto;
 import com.study.memo.dto.MemoResponseDto;
 import com.study.memo.entity.Memo;
 import com.study.memo.repository.MemoRepository;
-import lombok.RequiredArgsConstructor;
-import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
 @Service
-@RequiredArgsConstructor
 public class MemoService {
 
     private final MemoRepository memoRepository;
 
-//    // @RequiredArgsConstructor 사용하면 안써도됨
-//    public MemoService(MemoRepository memoRepository) {
-//        this.memoRepository = memoRepository;
-//    }
-
-    // context로 구현하기
-//    public MemoService(ApplicationContext context) {
-////        MemoRepository memoReposiroty = (MemoRepository) context.getBean("MemoRepository");
-//        MemoRepository memoReposiroty = (MemoRepository) context.getBean(MemoRepository.class);
-//        this.memoRepository = memoReposiroty;
-//    }
+    public MemoService(MemoRepository memoRepository) {
+        this.memoRepository = memoRepository;
+    }
 
     public MemoResponseDto createMemo(MemoRequestDto requestDto) {
         // RequestDto -> Entity
@@ -43,32 +33,38 @@ public class MemoService {
 
     public List<MemoResponseDto> getMemos() {
         // DB 조회
-        return memoRepository.findAll();
+        // return memoRepository.findAll().stream().map(MemoResponseDto::new).toList();
+        return memoRepository.findAllByOrderByModifiedAtDesc().stream().map(MemoResponseDto::new).toList();
     }
 
+    public List<MemoResponseDto> getMemosByKeyword(String keyword) {
+        return memoRepository.findAllByContentsContainsOrderByModifiedAtDesc(keyword).stream().map(MemoResponseDto::new).toList();
+    }
+
+    @Transactional
     public Long updateMemo(Long id, MemoRequestDto requestDto) {
         // 해당 메모가 DB에 존재하는지 확인
-        Memo memo = memoRepository.findById(id);
-        if (memo != null) {
-            // memo 내용 수정
-            memoRepository.update(id, requestDto);
+        Memo memo = findMemo(id);
 
-            return id;
-        } else {
-            throw new IllegalArgumentException("선택한 메모는 존재하지 않습니다.");
-        }
+        // memo 내용 수정 -> 여기서 수정했기 때문에 transaction으로 변경감지 적용
+        memo.update(requestDto);
+
+        return id;
     }
 
     public Long deleteMemo(Long id) {
         // 해당 메모가 DB에 존재하는지 확인
-        Memo memo = memoRepository.findById(id);
-        if (memo != null) {
-            // memo 삭제
-            memoRepository.delete(id);
+        Memo memo = findMemo(id);
 
-            return id;
-        } else {
-            throw new IllegalArgumentException("선택한 메모는 존재하지 않습니다.");
-        }
+        // memo 삭제
+        memoRepository.delete(memo);
+
+        return id;
+    }
+
+    private Memo findMemo(Long id) {
+        return memoRepository.findById(id).orElseThrow(() ->
+                new IllegalArgumentException("선택한 메모는 존재하지 않습니다.")
+        );
     }
 }
