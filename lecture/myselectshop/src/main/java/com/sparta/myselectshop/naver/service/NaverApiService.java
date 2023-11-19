@@ -1,13 +1,12 @@
-package com.sparta.springresttemplateclient.naver.service;
+package com.sparta.myselectshop.naver.service;
 
-import com.sparta.springresttemplateclient.config.KeysProperties;
-import com.sparta.springresttemplateclient.naver.dto.ItemDto;
+
+import com.sparta.myselectshop.properties.KeysProperties;
+import com.sparta.myselectshop.naver.dto.ItemDto;
 import lombok.extern.slf4j.Slf4j;
 import org.json.JSONArray;
 import org.json.JSONObject;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.web.client.RestTemplateBuilder;
-import org.springframework.context.annotation.PropertySource;
 import org.springframework.http.RequestEntity;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -20,7 +19,6 @@ import java.util.List;
 
 @Slf4j(topic = "NAVER API")
 @Service
-@PropertySource("classpath:keys.properties")
 public class NaverApiService {
 
     private final RestTemplate restTemplate;
